@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=C0103
 """
-    Test module
+Test module
 """
 import unittest
 from pentago import Pentago

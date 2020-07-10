@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+"""
+Entry point
+"""
 
 from pentago import Pentago
 
 
 def get_play_cmd():
+    """ get user cmd """
     try:
         print("x[0, 5]\ny[0, 5]\nquad[0, 3]\nsens[0, 1]")
         dat = tuple([int(input()) for _ in range(4)])

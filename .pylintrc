@@ -1,0 +1,26 @@
+[MASTER]
+
+# Profiled execution.
+profile=yes
+
+[MESSAGES CONTROL]
+disable=F0401,W0141,W0611,W0110,W0703,W0142,W0702
+
+[REPORTS]
+# Set the output format. Available formats are text, parseable, colorized, msvs
+# (visual studio) and html
+output-format=colorized
+
+# Tells whether to display a full report or only the messages
+reports=no
+
+[BASIC]
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,ex,Run,_,x,y,z,dx,dy,dz,px,py,pz
+
+# Bad variable names which should always be refused, separated by a comma
+bad-names=foo,bar,baz,toto,tutu,tata
+
+# List of note tags to take in consideration, separated by a comma.
+notes=FIXME,XXX,TODO
