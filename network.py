@@ -23,7 +23,7 @@ class Network:
 
     def forward(self, x):
         """ Forward pass: compute predicted y """
-        current = x
+        current = np.array(x)
         for i, weights in enumerate(self.wtab):
             layerh = current.dot(weights)
             if i != len(self.dims):

@@ -25,6 +25,6 @@ def get_play_cmd():
 if __name__ == '__main__':
     game = Pentago()
     print(game)
-    while game:
+    while game.run:
         game.play(*get_play_cmd())
         print(game)
