@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Test module
+Test pentago module
 """
 import unittest
-from pentago import Pentago
+from pentago import Pentago, winpos
 
 
 class TestPentago(unittest.TestCase):
@@ -65,6 +65,26 @@ class TestPentago(unittest.TestCase):
         self.assertEqual(game.getpoint(3, 0), game.VOID)
         self.assertEqual(game.getpoint(5, 0), game.WHITE)
         self.assertEqual(game.getpoint(4, 1), game.BLACK)
+
+    def test_win_all_combinations(self):
+        """ test win """
+        for color in (Pentago.BLACK, Pentago.WHITE):
+            for poss in winpos:
+                game = Pentago()
+                for pos in poss:
+                    game.setpoint(*pos, color)
+                game.check_win()
+                self.assertEqual(game.winner, color)
+
+    def test_win_eq(self):
+        """ test win eq """
+        game = Pentago()
+        for pos in winpos[0]:
+            game.setpoint(*pos, game.BLACK)
+        for pos in winpos[1]:
+            game.setpoint(*pos, game.WHITE)
+        game.check_win()
+        self.assertEqual(game.winner, game.VOID)
 
 
 def gen_suite():

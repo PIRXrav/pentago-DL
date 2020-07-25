@@ -4,12 +4,23 @@
 pentago.py
 """
 
+from itertools import product
 from math import floor
 import numpy as np
 
+grid = lambda x, y: product(range(x), range(y))
+winpos = [tuple(((x + i, y + 0) for i in range(5))) for x, y in grid(2, 6)]
+winpos += [tuple(((x + 0, y + i) for i in range(5))) for x, y  in grid(6, 2)]
+winpos += [tuple(((x + i, y + i) for i in range(5))) for x, y  in grid(2, 2)]
+winpos += [tuple(((x + i, 5 - (y + i)) for i in range(5)))
+           for x, y  in grid(2, 2)]
 
 class Pentago:
     """ Pentago game """
+
+    WHITE = 0
+    BLACK = 1
+    VOID = 2
 
     def __init__(self):
         """ init """
@@ -21,31 +32,30 @@ class Pentago:
         # 2: void
         # 0: white
         # 1: black
-        self.WHITE = 0
-        self.BLACK = 1
-        self.VOID = 2
         self.board = [np.full((3, 3), self.VOID) for _ in range(4)]
         self.player = self.WHITE  # white begin
         self.run = True  # game end ?
+        self.winner = self.VOID # nobody
 
     def rotate(self, index_quadrant, sens):
         """ rotate quadrant [0; 3] """
         self.board[index_quadrant] = \
             np.rot90(self.board[index_quadrant], 1 if sens else 3)
+        return self
 
     def setpoint(self, px, py, value):
         """ add point [0, 5] X [0, 5] """
         assert self.getpoint(px, py) == self.VOID
         self.board[floor(px / 3) + floor(py / 3) * 2][py % 3][px % 3] = value
+        return self
 
     def getpoint(self, px, py):
         """ get point [0, 5] X [0, 5] """
         return self.board[floor(px / 3) + floor(py / 3) * 2][py % 3][px % 3]
 
-    def play(self, posx, posy, quadrant, sens):
+    def play(self, posx, posy, quad, sens):
         """ play a turn """
-        self.setpoint(posx, posy, self.player)
-        self.rotate(quadrant, sens)
+        self.setpoint(posx, posy, self.player).rotate(quad, sens).check_win()
         self.player = 1 - self.player
 
     def __str__(self):
@@ -62,5 +72,22 @@ class Pentago:
             ret += '\n'
         return ret
 
-    def __eq__(self, other):
-        return self.run == other
+    def check_win(self):
+        """ check if player win """
+        winner = [False for _ in (self.WHITE, self.BLACK, self.VOID)]
+        for pos_tup in winpos:
+            player = self.getpoint(*pos_tup[0])
+            if sum(player == self.getpoint(*pos) for pos in pos_tup) == 5:
+                winner[player] |= True
+        self.run = not (winner[self.WHITE] or winner[self.BLACK])
+        self.winner = self.VOID if winner[self.WHITE] and winner[self.BLACK] \
+                      else (self.WHITE if winner[self.WHITE] else self.BLACK)
+        return self.run
+
+if __name__ == '__main__':
+    for poss in winpos:
+        game = Pentago()
+        for pos in poss:
+            game.setpoint(*pos, game.BLACK)
+        print(poss)
+        print(game)
