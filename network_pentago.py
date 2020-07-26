@@ -12,7 +12,9 @@ class NetworkPentago(Network):
     """ pentago network """
     def __init__(self):
         """ init """
-        super(NetworkPentago, self).__init__([36 * 2] + [72] * 2 + [36 + 4 * 2])
+        super(NetworkPentago, self).__init__([36 * 2] + [72] * 1 + [36 + 4 * 2])
+        self.nb_win = 0
+        self.nb_lose = 0
 
     def forward(self, pentago):
         """ forward
@@ -38,21 +40,61 @@ class NetworkPentago(Network):
                                if pentago.getpoint(x, y) == pentago.VOID
                                else -float('Inf'))  # reject invalid pos
         x, y = max(grid(6, 6), key=lambda pos: outpos(*pos))
-        quad, rot = max(grid(4, 2), key=lambda qr: nw_out[qr[0]*2+qr[1]])
+        quad, rot = max(grid(4, 2), key=lambda qr: nw_out[qr[0]*2+qr[1]]+36)
         return x, y, quad, rot
+
+    def loss(self):
+        """ let's maximize the victories """
+        #return self.nb_lose / self.nb_win
+        return "NOP"
+
+    def winrate(self):
+        """ winrate """
+        if self.nb_win == 0:
+            return 0
+        return self.nb_win / (self.nb_win + self.nb_lose)
+
+    def play(self, other, debug=False):
+        """
+        Play a game of pentago between the two networks.
+        It is possible to realize only one game.
+        """
+        networks = (self, other, None)
+        game = Pentago()
+        while game.run:
+            if debug:
+                print(game)
+            cmd = networks[game.player].forward(game)
+            if debug:
+                print("x={} y={} quad={} sens={}".format(*cmd))
+            game.play(*cmd)
+        if debug:
+            print(game)
+            print("winner is " + str(game.winner))
+            print("with " + str(game.winpos))
+        if game.winner != Pentago.VOID:
+            networks[game.winner].nb_win += 1
+            networks[not game.winner].nb_lose += 1
+        return networks[game.winner]
+
+
+    def __mod__(self, other):
+        """ wn1 % nw2 => winner NW """
+        assert type(self) == type(other)
+        return self.play(other)
+
+def playgame(nw_white, nw_black, debug=False):
+    """
+    Play game btw 2 nw
+    """
+
 
 def main():
     """ test """
-    networks = [NetworkPentago(), NetworkPentago()]
-    game = Pentago()
-    while game.run:
-        print(game)
-        cmd = networks[game.player].forward(game)
-        print("x={} y={} quad={} sens={}".format(*cmd))
-        game.play(*cmd)
-    print(game)
-    print("winner is " + str(game.winner))
-    print("with " + str(game.winpos))
+    networks = (NetworkPentago(), NetworkPentago())
+    winner = playgame(*networks, debug=True)
+    print(winner)
+
 
 if __name__ == '__main__':
     main()
