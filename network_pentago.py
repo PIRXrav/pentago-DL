@@ -77,11 +77,15 @@ class NetworkPentago(Network):
             networks[not game.winner].nb_lose += 1
         return networks[game.winner]
 
-
     def __mod__(self, other):
         """ wn1 % nw2 => winner NW """
-        assert type(self) == type(other)
         return self.play(other)
+
+    def reset_score(self):
+        """ reset score """
+        self.nb_win = 0
+        self.nb_lose = 0
+
 
 def playgame(nw_white, nw_black, debug=False):
     """

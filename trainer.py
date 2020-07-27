@@ -7,7 +7,7 @@ network trainer with genetic
 import matplotlib.pyplot as plt
 import numpy as np
 from network_pentago import NetworkPentago
-from itertools import product, combinations
+from itertools import product, combinations, chain
 
 class Trainer():
     """ Trainer class """
@@ -29,10 +29,10 @@ class Trainer():
         randomnw = [] # [NetworkPentago() for _ in range(family_size)]
 
         family = derivation + randomnw
-
         # play games:
-        for nw_tup in product(family, family):
+        for nw_tup in product(family, self.witness_tab):
             nw_tup[0].play(nw_tup[1])
+
         # compute best network
         self.network = max(family, key=lambda net: net.winrate())
         if self.network in derivation:
@@ -40,16 +40,19 @@ class Trainer():
         else:
             print("From random")
         # check evolution with witness
+
         if self.witness_tab is not None:
             self.score = 0
             for witness in self.witness_tab:
+                break
                 self.score += (self.network.play(witness)) == self.network
-        # loss
+        # losspython
         self.winrates.append(self.network.winrate())
         # debug
         self.iter_debug()
-        self.network.win = 0
-        self.network.lose = 0
+        # reset scores
+        for network in chain(self.witness_tab, [self.network]):
+            network.reset_score()
 
     def iter_debug(self):
         """ iter debug """
@@ -81,7 +84,7 @@ class Trainer():
 
 if __name__ == '__main__':
 
-    family_size = 5
+    family_size = 10
     learning_rate = 0.01
     nb_iterarion = 100
 
